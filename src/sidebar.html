@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSXcode</title>
+    <style>
+        body {
+            font-family: var(--vscode-font-family);
+            font-size: var(--vscode-font-size);
+            color: var(--vscode-foreground);
+            background-color: var(--vscode-sideBar-background);
+            margin: 0;
+            padding: 16px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--vscode-sideBar-border);
+        }
+        h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: var(--vscode-foreground);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .refresh-btn:hover {
+            background-color: var(--vscode-toolbar-hoverBackground);
+        }
+        .project-info {
+            background-color: var(--vscode-editor-background);
+            border: 1px solid var(--vscode-sideBar-border);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        .project-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--vscode-textLink-foreground);
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+        .info-label {
+            color: var(--vscode-descriptionForeground);
+        }
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .btn {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .btn:hover {
+            background-color: var(--vscode-button-hoverBackground);
+        }
+        .no-project {
+            text-align: center;
+            color: var(--vscode-descriptionForeground);
+            padding: 20px;
+        }
+        .loading {
+            text-align: center;
+            color: var(--vscode-descriptionForeground);
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"><div class="loading">Loading...</div></div>
+    <script>
+        const vscode = acquireVsCodeApi();
+        const app = document.getElementById('app');
+
+        function updateContent(projectInfo) {
+            if (!app) return;
+
+            if (!projectInfo) {
+                app.innerHTML = `
+                    <div class="no-project">
+                        <h3>No Xcode Project Found</h3>
+                        <p>Open a folder containing an .xcodeproj or .xcworkspace file.</p>
+                    </div>`;
+                return;
+            }
+
+            const selectedDeviceName = projectInfo.selectedDevice ? projectInfo.selectedDevice.name : 'Not selected';
+
+            app.innerHTML = `
+                <div class="header">
+                    <h2>${projectInfo.name}</h2>
+                    <button class="refresh-btn" onclick="vscode.postMessage({ type: 'refresh' })" title="Refresh">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 3a5 5 0 0 0-5 5H1l3.5 3.5L8 8H6a2 2 0 1 1 2 2v2a4 4 0 1 0-4-4H2a6 6 0 1 1 6 6v-2a4 4 0 0 0 0-8z"/></svg>
+                    </button>
+                </div>
+                <div class="project-info">
+                    <div class="info-item">
+                        <span class="info-label">Scheme:</span>
+                        <span>${projectInfo.selectedScheme || 'Not selected'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Device:</span>
+                        <span>${selectedDeviceName}</span>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn" onclick="vscode.postMessage({ type: 'runApp' })">Run App</button>
+                    <button class="btn" onclick="vscode.postMessage({ type: 'buildApp' })">Build App</button>
+                    <button class="btn" onclick="vscode.postMessage({ type: 'cleanBuild' })">Clean Build</button>
+                    <button class="btn" onclick="vscode.postMessage({ type: 'selectScheme' })">Select Scheme</button>
+                    <button class="btn" onclick="vscode.postMessage({ type: 'selectDevice' })">Select Device</button>
+                </div>
+            `;
+        }
+
+        window.addEventListener('message', event => {
+            const message = event.data;
+            if (message.type === 'updateContent') {
+                updateContent(message.projectInfo);
+            }
+        });
+    </script>
+</body>
+</html>

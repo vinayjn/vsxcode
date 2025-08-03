@@ -1,0 +1,176 @@
+{
+  "name": "vsxcode",
+  "displayName": "VSXcode",
+  "description": "Perform Xcode actions directly from VSCode",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vinayjn/vsxcode.git"
+  },
+  "engines": {
+    "vscode": "^1.102.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:vsxcode.sidebar"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vsxcode-sidebar",
+          "title": "VSXcode",
+          "icon": "$(play)"
+        }
+      ]
+    },
+    "views": {
+      "vsxcode-sidebar": [
+        {
+          "type": "webview",
+          "id": "vsxcode.sidebar",
+          "name": "VSXcode"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "vsxcode.sidebar.focus",
+        "title": "Focus VSXcode Sidebar",
+        "category": "VSXcode"
+      },
+      {
+        "command": "vsxcode.runApp",
+        "title": "Run App",
+        "category": "VSXcode"
+      },
+      {
+        "command": "vsxcode.buildApp",
+        "title": "Build App",
+        "category": "VSXcode"
+      },
+      {
+        "command": "vsxcode.cleanBuild",
+        "title": "Clean Build",
+        "category": "VSXcode"
+      },
+      {
+        "command": "vsxcode.selectScheme",
+        "title": "Select Scheme",
+        "category": "VSXcode"
+      },
+      {
+        "command": "vsxcode.selectDevice",
+        "title": "Select Device",
+        "category": "VSXcode"
+      },
+      {
+        "command": "vsxcode.showStatus",
+        "title": "Show Status",
+        "category": "VSXcode"
+      },
+      {
+        "command": "vsxcode.refreshSidebar",
+        "title": "Refresh",
+        "category": "VSXcode"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vsxcode.runApp",
+        "key": "cmd+r",
+        "when": "true"
+      },
+      {
+        "command": "vsxcode.buildApp",
+        "key": "cmd+b",
+        "when": "true"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vsxcode.runApp",
+          "when": "true"
+        },
+        {
+          "command": "vsxcode.buildApp",
+          "when": "true"
+        },
+        {
+          "command": "vsxcode.selectScheme",
+          "when": "true"
+        },
+        {
+          "command": "vsxcode.selectDevice",
+          "when": "true"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "vsxcode.runApp",
+          "when": "true",
+          "group": "navigation"
+        },
+        {
+          "command": "vsxcode.buildApp",
+          "when": "true",
+          "group": "navigation"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "vsxcode.refreshSidebar",
+          "when": "view == vsxcode.sidebar",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "VSXcode",
+      "properties": {
+        "vsxcode.xcodePath": {
+          "type": "string",
+          "default": "/Applications/Xcode.app/Contents/Developer",
+          "description": "Path to Xcode developer directory"
+        },
+        "vsxcode.defaultScheme": {
+          "type": "string",
+          "description": "Default scheme to use for building and running"
+        },
+        "vsxcode.defaultDevice": {
+          "type": "string",
+          "description": "Default device to use for running iOS apps"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.102.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.25.1",
+    "typescript": "^5.8.3",
+    "ts-loader": "^9.5.2",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
