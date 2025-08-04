@@ -3,6 +3,8 @@
 [![GitHub release](https://img.shields.io/github/release/vinayjn/vsxcode.svg)](https://github.com/vinayjn/vsxcode/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+![VSXcode Screenshot](Screenshot.png)
+
 VSXcode is a VS Code extension that brings Xcode functionality directly into Visual Studio Code, enabling iOS and macOS development without leaving your editor.
 
 ## ✨ Features
