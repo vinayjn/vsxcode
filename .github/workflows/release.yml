@@ -1,0 +1,99 @@
+name: Build and Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linter
+      run: npm run lint
+      
+    - name: Run tests
+      run: |
+        xvfb-run -a npm run test
+      env:
+        DISPLAY: ':99.0'
+        
+    - name: Build extension (production)
+      run: npm run package
+      
+    - name: Package extension
+      run: |
+        npm install -g @vscode/vsce
+        vsce package --out vsxcode-${{ github.ref_name }}.vsix
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: vsxcode-extension
+        path: '*.vsix'
+        retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: vsxcode-extension
+        
+    - name: Extract version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ steps.get_version.outputs.VERSION }}
+        files: '*.vsix'
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        body: |
+          ## What's Changed
+          
+          VSXcode Extension v${{ steps.get_version.outputs.VERSION }}
+          
+          ### Installation
+          Download the `.vsix` file and install it in VS Code:
+          1. Open VS Code
+          2. Go to Extensions view (Ctrl+Shift+X)
+          3. Click on the "..." menu and select "Install from VSIX..."
+          4. Select the downloaded `.vsix` file
+          
+          ### Features
+          - Run and build iOS/macOS apps directly from VS Code
+          - Scheme and device selection
+          - Clean build support
+          - Familiar keyboard shortcuts (Cmd+R, Cmd+B)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
